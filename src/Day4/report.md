@@ -1,0 +1,4 @@
+## Date: 05/02/2026
+
+### Content
+Studied Java interfaces and how they help reduce tight coupling and improve overall code design. Learned to create and implement interfaces and understood how they solve common problems in tightly coupled code. Explored dependency injection through constructor, setter, and method injection, and saw how it makes applications more flexible and easier to test. Also gained clarity on the Interface Segregation Principle, the difference between interfaces and abstract classes, and best practices for writing clean, reusable, and maintainable code using interface-based design.
