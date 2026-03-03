@@ -50,4 +50,4 @@ Database Integration:
 This task helped strengthen my understanding of JPA relationships, layered architecture, REST API development, and real-time database integration using Spring Boot.
 
 ## Link
-https://github.com/Akash-Shenvi/Sclera-internship/tree/main/src/tasks/library
+https://github.com/Akash-Shenvi/Sclera-internship/tree/main/src/tasks/demo
