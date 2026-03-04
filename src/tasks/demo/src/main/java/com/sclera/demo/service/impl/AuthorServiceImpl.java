@@ -2,6 +2,7 @@ package com.sclera.demo.service.impl;
 
 import com.sclera.demo.dto.request.AuthorRequestDTO;
 import com.sclera.demo.dto.response.AuthorAvgBookPriceResponseDTO;
+import com.sclera.demo.dto.response.AuthorAvgRatingResponseDTO;
 import com.sclera.demo.dto.response.AuthorResponseDTO;
 import com.sclera.demo.entity.Author;
 import com.sclera.demo.exception.ResourceConflictException;
@@ -9,6 +10,7 @@ import com.sclera.demo.exception.ResourceNotFoundException;
 import com.sclera.demo.repository.AuthorRepository;
 import com.sclera.demo.repository.BookRepository;
 import com.sclera.demo.repository.projection.AuthorAvgBookPriceProjection;
+import com.sclera.demo.repository.projection.AuthorAvgRatingProjection;
 import com.sclera.demo.service.AuthorService;
 import org.springframework.stereotype.Service;
 
@@ -75,9 +77,11 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Double getAverageRating() {
-        Double averageRating = bookRepository.findAverageRating();
-        return averageRating == null ? 0.0 : averageRating;
+    public List<AuthorAvgRatingResponseDTO> getAverageRatingOfAllAuthors() {
+        return authorRepository.findAverageRatingOfAllAuthors()
+                .stream()
+                .map(this::mapToAvgRatingResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -107,6 +111,15 @@ public class AuthorServiceImpl implements AuthorService {
                 .fullName(projection.getFullName())
                 .country(projection.getCountry())
                 .avgBookPrice(projection.getAvgBookPrice())
+                .build();
+    }
+
+    private AuthorAvgRatingResponseDTO mapToAvgRatingResponse(AuthorAvgRatingProjection projection){
+        return AuthorAvgRatingResponseDTO.builder()
+                .authorId(projection.getAuthorId())
+                .fullName(projection.getFullName())
+                .country(projection.getCountry())
+                .avgRating(projection.getAvgRating() == null ? 0.0 : projection.getAvgRating())
                 .build();
     }
 }

@@ -59,7 +59,7 @@ This README is focused on testing all implemented endpoints in Postman.
 - Method: `DELETE`
 - URL: `{{baseUrl}}/api/authors/{id}`
 
-### 6. Average Rating of All Books
+### 6. Average Rating of All Authors (Based on Their Books)
 
 - Method: `GET`
 - URL: `{{baseUrl}}/api/authors/average-rating`

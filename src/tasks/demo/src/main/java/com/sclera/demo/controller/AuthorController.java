@@ -2,8 +2,8 @@ package com.sclera.demo.controller;
 
 import com.sclera.demo.dto.request.AuthorRequestDTO;
 import com.sclera.demo.dto.response.AuthorAvgBookPriceResponseDTO;
+import com.sclera.demo.dto.response.AuthorAvgRatingResponseDTO;
 import com.sclera.demo.dto.response.AuthorResponseDTO;
-import com.sclera.demo.dto.response.AverageRatingResponseDTO;
 import com.sclera.demo.service.AuthorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +37,8 @@ public class AuthorController {
     }
 
     @GetMapping("/average-rating")
-    public ResponseEntity<AverageRatingResponseDTO> getAverageRating(){
-        return ResponseEntity.ok(
-                AverageRatingResponseDTO.builder()
-                        .averageRating(authorService.getAverageRating())
-                        .build()
-        );
+    public ResponseEntity<List<AuthorAvgRatingResponseDTO>> getAverageRating(){
+        return ResponseEntity.ok(authorService.getAverageRatingOfAllAuthors());
     }
 
     @GetMapping("/avg-book-price")
