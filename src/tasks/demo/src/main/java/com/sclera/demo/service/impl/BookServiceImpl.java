@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.sclera.demo.entity.Book;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,9 +36,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO createBook(BookRequestDTO dto) {
 
-       Set<Author> authors =authorRepository.findAllById(dto.getAuthorIds())
-               .stream()
-               .collect(Collectors.toSet());
+       Set<Author> authors = new HashSet<>(authorRepository.findAllById(dto.getAuthorIds()));
 
         Book book =Book.builder()
                 .name(dto.getName())
