@@ -4,9 +4,14 @@ import com.sclera.demo.dto.request.BookRequestDTO;
 import com.sclera.demo.dto.response.AuthorResponseDTO;
 import com.sclera.demo.dto.response.BookResponseDTO;
 import com.sclera.demo.entity.Author;
+import com.sclera.demo.exception.ResourceNotFoundException;
 import com.sclera.demo.repository.AuthorRepository;
 import com.sclera.demo.repository.BookRepository;
 import com.sclera.demo.service.BookService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.sclera.demo.entity.Book;
@@ -48,7 +53,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO updateBook(Long id, BookRequestDTO dto) {
         Book book = bookRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
 
         Set<Author> authors=authorRepository.findAllById(dto.getAuthorIds()).stream().collect(Collectors.toSet());
         book.setName(dto.getName());
@@ -63,7 +68,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO deleteBook(Long id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
 
         BookResponseDTO response = mapToResponse(book);
         bookRepository.delete(book);
@@ -77,9 +82,21 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public Page<BookResponseDTO> getBooksPage(int page, int size, String sort) {
+        String[] sortParts = sort.split(",", 2);
+        String sortField = sortParts[0].trim();
+        Sort.Direction sortDirection = sortParts.length > 1
+                ? Sort.Direction.fromString(sortParts[1].trim())
+                : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortField));
+        return bookRepository.findAll(pageable).map(this::mapToResponse);
+    }
+
+    @Override
     public BookResponseDTO getBookById(Long id) {
         Book book =bookRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
 
         return mapToResponse(book);
     }

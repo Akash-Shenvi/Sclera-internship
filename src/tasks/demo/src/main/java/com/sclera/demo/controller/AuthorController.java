@@ -1,11 +1,12 @@
 package com.sclera.demo.controller;
 
 import com.sclera.demo.dto.request.AuthorRequestDTO;
+import com.sclera.demo.dto.response.AuthorAvgBookPriceResponseDTO;
 import com.sclera.demo.dto.response.AuthorResponseDTO;
+import com.sclera.demo.dto.response.AverageRatingResponseDTO;
 import com.sclera.demo.service.AuthorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,22 @@ public class AuthorController {
     @GetMapping()
     public ResponseEntity<List<AuthorResponseDTO>>getAuthors(){
         return ResponseEntity.ok(authorService.getAllAuthors());
+    }
+
+    @GetMapping("/average-rating")
+    public ResponseEntity<AverageRatingResponseDTO> getAverageRating(){
+        return ResponseEntity.ok(
+                AverageRatingResponseDTO.builder()
+                        .averageRating(authorService.getAverageRating())
+                        .build()
+        );
+    }
+
+    @GetMapping("/avg-book-price")
+    public ResponseEntity<List<AuthorAvgBookPriceResponseDTO>> getAuthorsWithAvgBookPrice(
+            @RequestParam(defaultValue = "asc") String sort
+    ){
+        return ResponseEntity.ok(authorService.getAuthorsWithAvgBookPrice(sort));
     }
 
     @DeleteMapping("/{id}")

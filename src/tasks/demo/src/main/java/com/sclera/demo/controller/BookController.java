@@ -4,6 +4,7 @@ package com.sclera.demo.controller;
 import com.sclera.demo.dto.request.BookRequestDTO;
 import com.sclera.demo.dto.response.BookResponseDTO;
 import com.sclera.demo.service.BookService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,14 @@ public class BookController {
     @GetMapping
     public ResponseEntity<List<BookResponseDTO>>getAllBooks(){
         return ResponseEntity.ok(bookService.getAllBooks());
+    }
+    @GetMapping("/page")
+    public ResponseEntity<Page<BookResponseDTO>>getBooksPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,asc") String sort
+    ){
+        return ResponseEntity.ok(bookService.getBooksPage(page, size, sort));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<BookResponseDTO>deleteBook(@PathVariable Long id){
