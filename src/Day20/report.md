@@ -52,6 +52,7 @@ MapStruct helps simplify this process by automatically generating mapping code b
     <artifactId>mapstruct</artifactId>
     <version>1.5.5.Final</version>
 </dependency>
+```
 
 ---
 ### How MapStruct Works
