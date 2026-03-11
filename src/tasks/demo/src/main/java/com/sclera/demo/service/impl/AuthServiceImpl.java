@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
         User user= User.builder()
                 .email(registerRequestDTO.getEmail())
                 .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
-                .role("ADMIN")
+                .role("USER")
                 .build();
         userRepository.save(user);
         return AuthResponseDTO.builder().token(null).message("Registration success").build();

@@ -28,7 +28,6 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(String.valueOf(user.getId()))
-                .claim("role", user.getRole())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(getSigningKey())
@@ -37,10 +36,6 @@ public class JwtService {
 
     public Long extractUserId(String token) {
         return Long.parseLong(extractAllClaims(token).getSubject());
-    }
-
-    public String extractRole(String token) {
-        return extractAllClaims(token).get("role", String.class);
     }
 
     public boolean isTokenValid(String token) {
