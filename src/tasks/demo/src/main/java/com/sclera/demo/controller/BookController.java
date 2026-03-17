@@ -33,6 +33,12 @@ public class BookController {
     public ResponseEntity<List<BookResponseDTO>>getAllBooks(){
         return ResponseEntity.ok(bookService.getAllBooks());
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<BookResponseDTO>> searchBooks(@RequestParam String query) {
+        return ResponseEntity.ok(bookService.searchBooks(query));
+    }
+
     @GetMapping("/page")
     public ResponseEntity<Page<BookResponseDTO>>getBooksPage(
             @RequestParam(defaultValue = "0") int page,

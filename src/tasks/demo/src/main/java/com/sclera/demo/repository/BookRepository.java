@@ -8,4 +8,9 @@ import java.util.List;
 public interface BookRepository extends JpaRepository <Book,Long> {
     boolean existsByAuthors_Id(Long authorId);
     List<Book> findDistinctByAuthors_Id(Long authorId);
+    List<Book> findByNameContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrIsbnNumberContainingIgnoreCase(
+            String name,
+            String category,
+            String isbnNumber
+    );
 }

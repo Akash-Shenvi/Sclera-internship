@@ -9,6 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface  AuthorRepository  extends JpaRepository<Author,Long> {
+    List<Author> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrCountryContainingIgnoreCase(
+            String firstName,
+            String lastName,
+            String country
+    );
+
     @Query(value = """
             SELECT
                 a.id AS authorId,

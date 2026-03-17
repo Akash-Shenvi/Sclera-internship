@@ -61,6 +61,24 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    public List<AuthorResponseDTO> searchAuthors(String query) {
+        String normalizedQuery = query == null ? "" : query.trim();
+        if (normalizedQuery.isEmpty()) {
+            return getAllAuthors();
+        }
+
+        return authorRepository
+                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrCountryContainingIgnoreCase(
+                        normalizedQuery,
+                        normalizedQuery,
+                        normalizedQuery
+                )
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public AuthorResponseDTO getAuthorById(Long id) {
         Author author = authorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));

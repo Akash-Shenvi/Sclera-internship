@@ -81,6 +81,24 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<BookResponseDTO> searchBooks(String query) {
+        String normalizedQuery = query == null ? "" : query.trim();
+        if (normalizedQuery.isEmpty()) {
+            return getAllBooks();
+        }
+
+        return bookRepository
+                .findByNameContainingIgnoreCaseOrCategoryContainingIgnoreCaseOrIsbnNumberContainingIgnoreCase(
+                        normalizedQuery,
+                        normalizedQuery,
+                        normalizedQuery
+                )
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Page<BookResponseDTO> getBooksPage(int page, int size, String sort) {
         String[] sortParts = sort.split(",", 2);
         String sortField = sortParts[0].trim();

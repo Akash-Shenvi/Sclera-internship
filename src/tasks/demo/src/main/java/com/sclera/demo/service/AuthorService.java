@@ -14,6 +14,7 @@ public interface AuthorService {
     AuthorResponseDTO deleteAuthor(Long id);
     AuthorResponseDTO getAuthorById(Long id);
     List<AuthorResponseDTO>getAllAuthors();
+    List<AuthorResponseDTO> searchAuthors(String query);
     List<AuthorAvgRatingResponseDTO> getAverageRatingOfAllAuthors();
     List<AuthorAvgBookPriceResponseDTO> getAuthorsWithAvgBookPrice(String sort);
 }

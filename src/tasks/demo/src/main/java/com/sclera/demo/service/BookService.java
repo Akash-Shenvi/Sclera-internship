@@ -12,6 +12,7 @@ public interface BookService {
     BookResponseDTO updateBook(Long id , BookRequestDTO dto);
     BookResponseDTO deleteBook(Long id);
     List<BookResponseDTO> getAllBooks();
+    List<BookResponseDTO> searchBooks(String query);
     Page<BookResponseDTO> getBooksPage(int page, int size, String sort);
     BookResponseDTO getBookById(Long id);
 }

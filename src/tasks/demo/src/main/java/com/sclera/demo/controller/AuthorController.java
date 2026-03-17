@@ -26,6 +26,12 @@ public class AuthorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<AuthorResponseDTO>> searchAuthors(@RequestParam String query) {
+        return ResponseEntity.ok(authorService.searchAuthors(query));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AuthorResponseDTO>getAuthorById(@PathVariable Long id){
         return ResponseEntity.ok(authorService.getAuthorById(id));
