@@ -5,7 +5,7 @@ import com.sclera.demo.dto.response.AuthorAvgBookPriceResponseDTO;
 import com.sclera.demo.dto.response.AuthorAvgRatingResponseDTO;
 import com.sclera.demo.dto.response.AuthorResponseDTO;
 import com.sclera.demo.entity.Author;
-import com.sclera.demo.exception.ResourceConflictException;
+import com.sclera.demo.entity.Book;
 import com.sclera.demo.exception.ResourceNotFoundException;
 import com.sclera.demo.repository.AuthorRepository;
 import com.sclera.demo.repository.BookRepository;
@@ -13,7 +13,9 @@ import com.sclera.demo.repository.projection.AuthorAvgBookPriceProjection;
 import com.sclera.demo.repository.projection.AuthorAvgRatingProjection;
 import com.sclera.demo.service.AuthorService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,12 +68,32 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Transactional
     public AuthorResponseDTO deleteAuthor(Long id) {
         Author author = authorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + id));
-        if (bookRepository.existsByAuthors_Id(id)) {
-            throw new ResourceConflictException("Cannot delete author with id " + id + " because it is assigned to one or more books.");
+
+        List<Book> linkedBooks = bookRepository.findDistinctByAuthors_Id(id);
+        List<Book> booksToDelete = new ArrayList<>();
+        List<Book> booksToUpdate = new ArrayList<>();
+
+        for (Book book : linkedBooks) {
+            book.getAuthors().removeIf(linkedAuthor -> id.equals(linkedAuthor.getId()));
+            if (book.getAuthors().isEmpty()) {
+                booksToDelete.add(book);
+            } else {
+                booksToUpdate.add(book);
+            }
         }
+
+        if (!booksToUpdate.isEmpty()) {
+            bookRepository.saveAll(booksToUpdate);
+        }
+
+        if (!booksToDelete.isEmpty()) {
+            bookRepository.deleteAll(booksToDelete);
+        }
+
         authorRepository.delete(author);
         return mapToResponse(author);
     }
