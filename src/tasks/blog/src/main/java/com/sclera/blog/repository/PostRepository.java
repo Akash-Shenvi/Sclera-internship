@@ -12,4 +12,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // Get only published posts
     List<Post> findByPublishedTrue();
+
+    // Get published posts + current user's own posts (including drafts)
+    List<Post> findByPublishedTrueOrUserId(Long userId);
 }

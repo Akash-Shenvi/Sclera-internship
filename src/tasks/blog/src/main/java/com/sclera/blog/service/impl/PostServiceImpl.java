@@ -44,7 +44,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostResponse> getAllPosts() {
-        return postRepository.findAll()
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        return postRepository.findByPublishedTrueOrUserId(currentUserId)
                 .stream()
                 .map(postMapper::toDto)
                 .toList();
@@ -52,10 +54,16 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse getPostById(Long id) {
-        return postMapper.toDto(
-                postRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Post not found"))
-        );
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (!post.isPublished() && !post.getUser().getId().equals(currentUserId)) {
+            throw new UnauthorizedException("You are not allowed to view this post");
+        }
+
+        return postMapper.toDto(post);
     }
 
     @Override
