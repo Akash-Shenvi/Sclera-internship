@@ -39,6 +39,7 @@ public class CommentServiceImpl implements CommentService {
 
         Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+        validateCanInteractWithPost(post, userId);
 
         Comment parent = null;
 
@@ -68,6 +69,7 @@ public class CommentServiceImpl implements CommentService {
 
         Comment parent = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
+        validateCanInteractWithPost(parent.getPost(), userId);
 
         Comment reply = Comment.builder()
                 .content(content)
@@ -93,7 +95,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponse> getCommentsByPost(Long postId) {
+    public List<CommentResponse> getCommentsByPost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+        validateCanViewPost(post, userId);
+
         List<Comment> rootComments = commentRepository.findByPostIdAndParentIsNull(postId);
 
         return rootComments.stream()
@@ -113,5 +119,17 @@ public class CommentServiceImpl implements CommentService {
         );
 
         return response;
+    }
+
+    private void validateCanInteractWithPost(Post post, Long userId) {
+        if (!post.isPublished() && !post.getUser().getId().equals(userId)) {
+            throw new UnauthorizedException("You are not allowed to comment on this post");
+        }
+    }
+
+    private void validateCanViewPost(Post post, Long userId) {
+        if (!post.isPublished() && !post.getUser().getId().equals(userId)) {
+            throw new UnauthorizedException("You are not allowed to view comments for this post");
+        }
     }
 }

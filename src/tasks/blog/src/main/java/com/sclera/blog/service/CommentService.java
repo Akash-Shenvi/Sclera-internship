@@ -11,5 +11,5 @@ public interface CommentService {
     CommentResponse replyToComment(Long parentCommentId, String content, Long userId);
     void deleteComment(Long commentId, Long userId);
 
-    List<CommentResponse> getCommentsByPost(Long postId);
+    List<CommentResponse> getCommentsByPost(Long postId, Long userId);
 }

@@ -38,7 +38,8 @@ public class CommentController {
     // Get all comments of a post
     @GetMapping("/post/{postId}")
     public List<CommentResponse> getComments(@PathVariable Long postId) {
-        return commentService.getCommentsByPost(postId);
+        Long userId = SecurityUtils.getCurrentUserId();
+        return commentService.getCommentsByPost(postId, userId);
     }
 
     // Delete own comment/reply
