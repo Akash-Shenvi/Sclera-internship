@@ -40,4 +40,11 @@ public class CommentController {
     public List<CommentResponse> getComments(@PathVariable Long postId) {
         return commentService.getCommentsByPost(postId);
     }
+
+    // Delete own comment/reply
+    @DeleteMapping("/{commentId}")
+    public void deleteComment(@PathVariable Long commentId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        commentService.deleteComment(commentId, userId);
+    }
 }

@@ -7,6 +7,7 @@ import com.sclera.blog.entity.Post;
 import com.sclera.blog.entity.User;
 import com.sclera.blog.exception.BadRequestException;
 import com.sclera.blog.exception.ResourceNotFoundException;
+import com.sclera.blog.exception.UnauthorizedException;
 import com.sclera.blog.mapper.CommentMapper;
 import com.sclera.blog.repository.CommentRepository;
 import com.sclera.blog.repository.PostRepository;
@@ -77,6 +78,18 @@ public class CommentServiceImpl implements CommentService {
                 .build();
 
         return commentMapper.toDto(commentRepository.save(reply));
+    }
+
+    @Override
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new UnauthorizedException("You are not allowed to delete this comment");
+        }
+
+        commentRepository.delete(comment);
     }
 
     @Override
