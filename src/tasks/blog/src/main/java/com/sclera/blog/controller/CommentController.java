@@ -1,6 +1,7 @@
 package com.sclera.blog.controller;
 
 import com.sclera.blog.dto.request.CommentRequest;
+import com.sclera.blog.dto.request.ReplyRequest;
 import com.sclera.blog.dto.response.CommentResponse;
 import com.sclera.blog.security.SecurityUtils;
 import com.sclera.blog.service.CommentService;
@@ -22,6 +23,16 @@ public class CommentController {
     public CommentResponse addComment(@Valid @RequestBody CommentRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();
         return commentService.addComment(request, userId);
+    }
+
+    // Reply to an existing comment
+    @PostMapping("/{commentId}/replies")
+    public CommentResponse addReply(
+            @PathVariable Long commentId,
+            @Valid @RequestBody ReplyRequest request
+    ) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return commentService.replyToComment(commentId, request.getContent(), userId);
     }
 
     // Get all comments of a post

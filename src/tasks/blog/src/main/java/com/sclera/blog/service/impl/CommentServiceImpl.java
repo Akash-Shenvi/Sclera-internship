@@ -5,6 +5,7 @@ import com.sclera.blog.dto.response.CommentResponse;
 import com.sclera.blog.entity.Comment;
 import com.sclera.blog.entity.Post;
 import com.sclera.blog.entity.User;
+import com.sclera.blog.exception.BadRequestException;
 import com.sclera.blog.exception.ResourceNotFoundException;
 import com.sclera.blog.mapper.CommentMapper;
 import com.sclera.blog.repository.CommentRepository;
@@ -31,6 +32,10 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        if (request.getPostId() == null) {
+            throw new BadRequestException("postId is required");
+        }
+
         Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
 
@@ -39,6 +44,9 @@ public class CommentServiceImpl implements CommentService {
         if (request.getParentId() != null) {
             parent = commentRepository.findById(request.getParentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
+            if (!parent.getPost().getId().equals(post.getId())) {
+                throw new BadRequestException("Parent comment does not belong to the provided post");
+            }
         }
 
         Comment comment = Comment.builder()
@@ -50,6 +58,25 @@ public class CommentServiceImpl implements CommentService {
                 .build();
 
         return commentMapper.toDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public CommentResponse replyToComment(Long parentCommentId, String content, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Comment parent = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
+
+        Comment reply = Comment.builder()
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .user(user)
+                .post(parent.getPost())
+                .parent(parent)
+                .build();
+
+        return commentMapper.toDto(commentRepository.save(reply));
     }
 
     @Override
