@@ -63,26 +63,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponse replyToComment(Long parentCommentId, String content, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        Comment parent = commentRepository.findById(parentCommentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
-        validateCanInteractWithPost(parent.getPost(), userId);
-
-        Comment reply = Comment.builder()
-                .content(content)
-                .createdAt(LocalDateTime.now())
-                .user(user)
-                .post(parent.getPost())
-                .parent(parent)
-                .build();
-
-        return commentMapper.toDto(commentRepository.save(reply));
-    }
-
-    @Override
     public void deleteComment(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
@@ -92,6 +72,19 @@ public class CommentServiceImpl implements CommentService {
         }
 
         commentRepository.delete(comment);
+    }
+
+    @Override
+    public void deleteAllCommentsByPost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new UnauthorizedException("You are not allowed to delete comments for this post");
+        }
+
+        List<Comment> rootComments = commentRepository.findByPostIdAndParentIsNull(postId);
+        commentRepository.deleteAll(rootComments);
     }
 
     @Override

@@ -33,11 +33,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // One user → many posts
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
-    // One user → many comments
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 }

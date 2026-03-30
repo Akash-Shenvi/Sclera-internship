@@ -33,12 +33,12 @@ public class Post {
 
     private LocalDateTime updatedAt;
 
-    // Many posts → one user
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    // One post → many comments
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 }

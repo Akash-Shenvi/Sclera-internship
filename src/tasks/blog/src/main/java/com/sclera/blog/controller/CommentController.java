@@ -1,7 +1,6 @@
 package com.sclera.blog.controller;
 
 import com.sclera.blog.dto.request.CommentRequest;
-import com.sclera.blog.dto.request.ReplyRequest;
 import com.sclera.blog.dto.response.CommentResponse;
 import com.sclera.blog.security.SecurityUtils;
 import com.sclera.blog.service.CommentService;
@@ -25,16 +24,6 @@ public class CommentController {
         return commentService.addComment(request, userId);
     }
 
-    // Reply to an existing comment
-    @PostMapping("/{commentId}/replies")
-    public CommentResponse addReply(
-            @PathVariable Long commentId,
-            @Valid @RequestBody ReplyRequest request
-    ) {
-        Long userId = SecurityUtils.getCurrentUserId();
-        return commentService.replyToComment(commentId, request.getContent(), userId);
-    }
-
     // Get all comments of a post
     @GetMapping("/post/{postId}")
     public List<CommentResponse> getComments(@PathVariable Long postId) {
@@ -47,5 +36,12 @@ public class CommentController {
     public void deleteComment(@PathVariable Long commentId) {
         Long userId = SecurityUtils.getCurrentUserId();
         commentService.deleteComment(commentId, userId);
+    }
+
+    // Delete all comments of a post (post owner only)
+    @DeleteMapping("/post/{postId}")
+    public void deleteAllCommentsByPost(@PathVariable Long postId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        commentService.deleteAllCommentsByPost(postId, userId);
     }
 }
