@@ -6,9 +6,8 @@ import com.sclera.blog.security.SecurityUtils;
 import com.sclera.blog.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -24,8 +23,13 @@ public class PostController {
     }
 
     @GetMapping
-    public List<PostResponse> getAllPosts() {
-        return postService.getAllPosts();
+    public Page<PostResponse> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        return postService.getAllPosts(page, size, sortBy, sortDir);
     }
 
     @GetMapping("/{id}")

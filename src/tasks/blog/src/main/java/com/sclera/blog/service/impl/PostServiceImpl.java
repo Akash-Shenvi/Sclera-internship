@@ -12,10 +12,12 @@ import com.sclera.blog.repository.UserRepository;
 import com.sclera.blog.security.SecurityUtils;
 import com.sclera.blog.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,13 +45,30 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostResponse> getAllPosts() {
+    public Page<PostResponse> getAllPosts(int page, int size, String sortBy, String sortDir) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
+        Sort sort = buildSort(sortBy, sortDir);
 
-        return postRepository.findByPublishedTrueOrUserId(currentUserId)
-                .stream()
-                .map(postMapper::toDto)
-                .toList();
+        return postRepository.findByPublishedTrueOrUserId(currentUserId, PageRequest.of(page, size, sort))
+                .map(postMapper::toDto);
+    }
+
+    @Override
+    public Page<PostResponse> getPostsByUserId(Long userId, int page, int size, String sortBy, String sortDir) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        Sort sort = buildSort(sortBy, sortDir);
+
+        if (currentUserId.equals(userId)) {
+            return postRepository.findByUserId(userId, PageRequest.of(page, size, sort))
+                    .map(postMapper::toDto);
+        }
+
+        return postRepository.findByUserIdAndPublishedTrue(userId, PageRequest.of(page, size, sort))
+                .map(postMapper::toDto);
     }
 
     @Override
@@ -99,5 +118,11 @@ public class PostServiceImpl implements PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    private Sort buildSort(String sortBy, String sortDir) {
+        return sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
     }
 }

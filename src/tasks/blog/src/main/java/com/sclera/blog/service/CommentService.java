@@ -2,8 +2,7 @@ package com.sclera.blog.service;
 
 import com.sclera.blog.dto.request.CommentRequest;
 import com.sclera.blog.dto.response.CommentResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface CommentService {
 
@@ -11,5 +10,5 @@ public interface CommentService {
     void deleteComment(Long commentId, Long userId);
     void deleteAllCommentsByPost(Long postId, Long userId);
 
-    List<CommentResponse> getCommentsByPost(Long postId, Long userId);
+    Page<CommentResponse> getCommentsByPost(Long postId, Long userId, int page, int size, String sortBy, String sortDir);
 }

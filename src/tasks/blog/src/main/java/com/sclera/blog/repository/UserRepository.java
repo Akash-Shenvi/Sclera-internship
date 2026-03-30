@@ -1,6 +1,8 @@
 package com.sclera.blog.repository;
 
 import com.sclera.blog.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -12,4 +14,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Check duplicate email during registration
     boolean existsByEmail(String email);
+
+    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+            String nameKeyword,
+            String emailKeyword,
+            Pageable pageable
+    );
 }

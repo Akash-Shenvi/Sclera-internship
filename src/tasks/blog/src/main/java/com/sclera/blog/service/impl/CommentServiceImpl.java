@@ -14,6 +14,9 @@ import com.sclera.blog.repository.PostRepository;
 import com.sclera.blog.repository.UserRepository;
 import com.sclera.blog.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -88,16 +91,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponse> getCommentsByPost(Long postId, Long userId) {
+    public Page<CommentResponse> getCommentsByPost(Long postId, Long userId, int page, int size, String sortBy, String sortDir) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
         validateCanViewPost(post, userId);
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
-        List<Comment> rootComments = commentRepository.findByPostIdAndParentIsNull(postId);
-
-        return rootComments.stream()
-                .map(this::mapToResponseWithReplies)
-                .toList();
+        return commentRepository.findByPostIdAndParentIsNull(postId, PageRequest.of(page, size, sort))
+                .map(this::mapToResponseWithReplies);
     }
 
     private CommentResponse mapToResponseWithReplies(Comment comment) {

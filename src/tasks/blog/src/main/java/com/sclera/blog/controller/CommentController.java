@@ -6,9 +6,8 @@ import com.sclera.blog.security.SecurityUtils;
 import com.sclera.blog.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -26,9 +25,15 @@ public class CommentController {
 
     // Get all comments of a post
     @GetMapping("/post/{postId}")
-    public List<CommentResponse> getComments(@PathVariable Long postId) {
+    public Page<CommentResponse> getComments(
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
         Long userId = SecurityUtils.getCurrentUserId();
-        return commentService.getCommentsByPost(postId, userId);
+        return commentService.getCommentsByPost(postId, userId, page, size, sortBy, sortDir);
     }
 
     // Delete own comment/reply
