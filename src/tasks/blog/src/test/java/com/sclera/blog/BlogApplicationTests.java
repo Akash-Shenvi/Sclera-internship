@@ -1,4 +1,4 @@
-package tasks.blog.src.test.java.com.sclera.blog;
+package com.sclera.blog;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
