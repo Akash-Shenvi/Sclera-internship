@@ -26,6 +26,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
+    private static final int MAX_COMMENT_DEPTH = 3;
+
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -52,6 +54,7 @@ public class CommentServiceImpl implements CommentService {
             if (!parent.getPost().getId().equals(post.getId())) {
                 throw new BadRequestException("Parent comment does not belong to the provided post");
             }
+            validateReplyDepth(parent);
         }
 
         Comment comment = Comment.builder()
@@ -127,5 +130,24 @@ public class CommentServiceImpl implements CommentService {
         if (!post.isPublished() && !post.getUser().getId().equals(userId)) {
             throw new UnauthorizedException("You are not allowed to view comments for this post");
         }
+    }
+
+    private void validateReplyDepth(Comment parent) {
+        int newCommentDepth = getCommentDepth(parent) + 1;
+        if (newCommentDepth > MAX_COMMENT_DEPTH) {
+            throw new BadRequestException("Maximum comment depth is 3 levels");
+        }
+    }
+
+    private int getCommentDepth(Comment comment) {
+        int depth = 1;
+        Comment current = comment;
+
+        while (current.getParent() != null) {
+            depth++;
+            current = current.getParent();
+        }
+
+        return depth;
     }
 }
