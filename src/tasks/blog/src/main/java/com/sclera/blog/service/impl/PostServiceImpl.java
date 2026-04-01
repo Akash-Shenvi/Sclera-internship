@@ -1,6 +1,7 @@
 package com.sclera.blog.service.impl;
 
 import com.sclera.blog.dto.request.PostRequest;
+import com.sclera.blog.dto.response.PostSearchResponse;
 import com.sclera.blog.dto.response.PostResponse;
 import com.sclera.blog.entity.Post;
 import com.sclera.blog.entity.User;
@@ -51,6 +52,21 @@ public class PostServiceImpl implements PostService {
 
         return postRepository.findByPublishedTrueOrUserId(currentUserId, PageRequest.of(page, size, sort))
                 .map(postMapper::toDto);
+    }
+
+    @Override
+    public Page<PostSearchResponse> searchPostsByTitle(String query, int page, int size, String sortBy, String sortDir) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        Sort sort = buildSort(sortBy, sortDir);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        if (query == null || query.trim().isEmpty()) {
+            return postRepository.findByPublishedTrueOrUserId(currentUserId, pageRequest)
+                    .map(postMapper::toSearchDto);
+        }
+
+        return postRepository.searchVisiblePostsByTitle(query.trim(), currentUserId, pageRequest)
+                .map(postMapper::toSearchDto);
     }
 
     @Override

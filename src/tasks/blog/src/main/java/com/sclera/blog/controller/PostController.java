@@ -1,6 +1,7 @@
 package com.sclera.blog.controller;
 
 import com.sclera.blog.dto.request.PostRequest;
+import com.sclera.blog.dto.response.PostSearchResponse;
 import com.sclera.blog.dto.response.PostResponse;
 import com.sclera.blog.security.SecurityUtils;
 import com.sclera.blog.service.PostService;
@@ -30,6 +31,17 @@ public class PostController {
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         return postService.getAllPosts(page, size, sortBy, sortDir);
+    }
+
+    @GetMapping("/search")
+    public Page<PostSearchResponse> searchPosts(
+            @RequestParam(required = false) String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        return postService.searchPostsByTitle(query, page, size, sortBy, sortDir);
     }
 
     @GetMapping("/{id}")

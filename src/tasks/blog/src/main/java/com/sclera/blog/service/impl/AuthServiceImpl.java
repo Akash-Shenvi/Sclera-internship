@@ -25,13 +25,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(RegisterRequest request) {
+        String username = normalizeUsername(request.getUsername());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("Email already exists");
         }
 
+        if (userRepository.existsByUsernameIgnoreCase(username)) {
+            throw new BadRequestException("Username already exists");
+        }
+
         User user = User.builder()
                 .name(request.getName())
+                .username(username)
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .bio(request.getBio())
@@ -56,5 +62,13 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtService.generateToken(user.getEmail());
 
         return new AuthResponse(token);
+    }
+
+    private String normalizeUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new BadRequestException("Username is required");
+        }
+
+        return username.trim();
     }
 }

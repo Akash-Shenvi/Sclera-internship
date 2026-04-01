@@ -15,7 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Check duplicate email during registration
     boolean existsByEmail(String email);
 
-    Page<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+    boolean existsByUsernameIgnoreCase(String username);
+
+    Page<User> findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+            String usernameKeyword,
             String nameKeyword,
             String emailKeyword,
             Pageable pageable

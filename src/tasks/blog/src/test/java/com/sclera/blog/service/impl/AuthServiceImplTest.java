@@ -46,11 +46,13 @@ class AuthServiceImplTest {
     void registerShouldSaveUserWithEncodedPassword() {
         RegisterRequest request = new RegisterRequest();
         request.setName("Akash");
+        request.setUsername("akash.dev");
         request.setEmail("akash@example.com");
         request.setPassword("plain-password");
         request.setBio("Java developer");
 
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+        when(userRepository.existsByUsernameIgnoreCase(request.getUsername())).thenReturn(false);
         when(passwordEncoder.encode(request.getPassword())).thenReturn("encoded-password");
 
         AuthResponse response = authService.register(request);
@@ -60,6 +62,7 @@ class AuthServiceImplTest {
 
         User savedUser = savedUserCaptor.getValue();
         assertEquals("Akash", savedUser.getName());
+        assertEquals("akash.dev", savedUser.getUsername());
         assertEquals("akash@example.com", savedUser.getEmail());
         assertEquals("encoded-password", savedUser.getPassword());
         assertEquals("Java developer", savedUser.getBio());
@@ -70,6 +73,7 @@ class AuthServiceImplTest {
     @Test
     void registerShouldThrowWhenEmailAlreadyExists() {
         RegisterRequest request = new RegisterRequest();
+        request.setUsername("akash.dev");
         request.setEmail("akash@example.com");
 
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
@@ -77,6 +81,22 @@ class AuthServiceImplTest {
         BadRequestException exception = assertThrows(BadRequestException.class, () -> authService.register(request));
 
         assertEquals("Email already exists", exception.getMessage());
+        verify(userRepository, never()).save(any(User.class));
+        verify(passwordEncoder, never()).encode(any());
+    }
+
+    @Test
+    void registerShouldThrowWhenUsernameAlreadyExists() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("akash.dev");
+        request.setEmail("akash@example.com");
+
+        when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+        when(userRepository.existsByUsernameIgnoreCase(request.getUsername())).thenReturn(true);
+
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> authService.register(request));
+
+        assertEquals("Username already exists", exception.getMessage());
         verify(userRepository, never()).save(any(User.class));
         verify(passwordEncoder, never()).encode(any());
     }
